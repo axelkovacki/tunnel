@@ -6,13 +6,26 @@ const server = require('http').Server(app);
 const io = require('socket.io')(server);
 
 const routes = require('./routes');
+const request = require('./handlers/request');
 
 io.on('connection', socket => {
-  console.log(socket)
-  socket.emit('previusMessage', 'messages');
+  const { headers } = socket.handshake;
 
-  socket.on('newMessage', async data => {
-    socket.broadcast.emit('receivedMessage', 'messages');
+  socket.join(headers.domain);
+  
+  socket.on('event', async data => {
+    try {
+      const { success, content } = await request.make(headers, data);
+      return socket.to(headers.domain).emit('observer', { 
+        success: success,
+        content: content
+      });
+    } catch(err) {
+      return socket.to(headers.domain).broadcast.emit('observer', { 
+        success: false,
+        content: 'UNSPECTED ERROR IN TUNNEL API'
+      });
+    }
   });
 });
 
