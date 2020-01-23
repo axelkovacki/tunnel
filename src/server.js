@@ -25,12 +25,12 @@ io.on('connection', socket => {
     try {
       const { success, content } = await request.make(headers, data);
 
-      for (const key in clients) {
-        if(!data.sockets || !data.sockets.clients) {
-          throw new Error('SOCKET CLIENTS NOT INFORMED');
-        }
+      if(!content.sockets || !content.sockets.clients) {
+        throw new Error('SOCKET CLIENTS NOT INFORMED');
+      }
 
-        const toEmit = data.sockets.clients.filter((a) => a.authorization === clients[key].handshake.headers.authorization);
+      for (const key in clients) {
+        const toEmit = content.sockets.clients.filter((a) => a.authorization === clients[key].handshake.headers.authorization);
 
         if(toEmit.length === 0) {
           throw new Error('CLIENTS NOT FOUND');

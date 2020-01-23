@@ -16,7 +16,7 @@ const headersPass = ({ endpoint, method }) => {
   return true;
 }
 
-const make = async ({ domain, authorization }, { method, endpoint, data }) => {
+const make = async ({ domain, authorization }, { method, endpoint, content }) => {
 
   // Set default settings for Axios.
   axios.defaults.baseURL = domain;
@@ -47,7 +47,7 @@ const make = async ({ domain, authorization }, { method, endpoint, data }) => {
 
   if(method === 'POST') {
     try {
-      const { data } = await axios.post(endpoint, data);
+      const { data } = await axios.post(endpoint, content);
       
       return {
         success: true,
