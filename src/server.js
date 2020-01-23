@@ -25,25 +25,20 @@ io.on('connection', socket => {
     try {
       const { success, content } = await request.make(headers, data);
 
-      if(!content.sockets || !content.sockets.clients) {
+      if(!content.sockets || !content.sockets.clients || !content.sockets.clients.length) {
         throw new Error('SOCKET CLIENTS NOT INFORMED');
       }
-
-      for (const key in clients) {
-        const toEmit = content.sockets.clients.filter((a) => a.authorization === clients[key].handshake.headers.authorization);
-
-        if(toEmit.length === 0) {
-          throw new Error('CLIENTS NOT FOUND');
+      
+      for (const toEmit of content.sockets.clients) {
+        for (const key in clients) {
+          if(clients[key].handshake.headers.authorization === toEmit) {
+            clients[key].emit('observer', { 
+              success: success,
+              content: content
+            });
+          }
         }
-
-        toEmit.forEach((a) => {
-          a.emit('observer', { 
-            success: success,
-            content: content
-          });
-        });
       }
-
     } catch(err) {
       console.log(err)
       return socket.to(headers.domain).broadcast.emit('observer', { 
