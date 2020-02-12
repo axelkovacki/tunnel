@@ -20,7 +20,7 @@ io.on('connection', socket => {
     throw new Error('CLIENTS NOT FOUND');
   }
 
-  // Send to specifcs Clients in Room
+  // Send to specific Clients in Room
   socket.on('event', async data => {
     try {
       const { success, content } = await request.make(headers, data);
@@ -30,12 +30,17 @@ io.on('connection', socket => {
       }
       
       for (const toEmit of content.sockets.clients) {
+
+        // If for some reasons the same Client as connected multiple times, this verification blocked extra emits.
+        let sent = false;
         for (const key in clients) {
-          if(clients[key].handshake.headers.authorization === toEmit) {
+          if(!sent && clients[key].handshake.headers.authorization === toEmit) {
             clients[key].emit('observer', { 
               success: success,
               content: content
             });
+
+            sent = true;
           }
         }
       }
