@@ -7,7 +7,7 @@ API criada com o propósito de fornecer eventos em Tempo Real através de uma Ar
 - Conecte seu Client através de Sockets utilizando o socket.io-client:
 
 ```js
-const socket = io('https://tunnel-websockets.herokuapp.com', 
+const socket = io('https://tunnel.d3t.com.br', 
   {
     extraHeaders: {
       domain: 'IP da sua API de Destino',
