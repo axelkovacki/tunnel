@@ -9,7 +9,16 @@ const routes = require('./routes');
 const request = require('./handlers/request');
 
 io.on('connection', socket => {
-  const { headers } = socket.handshake;
+  let { headers } = socket.handshake;
+
+  if (!headers.domain && !headers.authorization) {
+    const { domain, authorization } = socket.request._query;
+    
+    headers = {
+      domain,
+      authorization
+    }
+  }
 
   // Join this new Client in Room
   socket.join(headers.domain);
@@ -35,6 +44,15 @@ io.on('connection', socket => {
         let sent = false;
         for (const key in clients) {
           if(!sent && clients[key].handshake.headers.authorization === toEmit) {
+            clients[key].emit('observer', { 
+              success: success,
+              content: content
+            });
+
+            sent = true;
+          }
+
+          if(!sent && clients[key].request._query.authorization === toEmit) {
             clients[key].emit('observer', { 
               success: success,
               content: content
