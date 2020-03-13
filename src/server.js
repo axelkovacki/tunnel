@@ -39,26 +39,19 @@ io.on('connection', socket => {
       }
       
       for (const toEmit of content.sockets.clients) {
-
-        // If for some reasons the same Client as connected multiple times, this verification blocked extra emits.
-        let sent = false;
         for (const key in clients) {
-          if(!sent && clients[key].handshake.headers.authorization === toEmit) {
+          if(clients[key].handshake.headers.authorization === toEmit) {
             clients[key].emit('observer', { 
               success: success,
               content: content
             });
-
-            sent = true;
           }
 
-          if(!sent && clients[key].request._query.authorization === toEmit) {
+          if(clients[key].request._query.authorization === toEmit) {
             clients[key].emit('observer', { 
               success: success,
               content: content
             });
-
-            sent = true;
           }
         }
       }
